@@ -370,3 +370,18 @@ def build_preprocessor(df_all: pd.DataFrame) -> ColumnTransformer:
     )
 
     return preprocessor
+
+def make_features(df):
+    df = add_engineered_features(df)
+    df = fill_domain_na(df)
+    df = map_ordinal_categories(df)
+    return df
+
+def predict_5pipeline(pipelines, X):
+    list_keys = list(pipelines.keys())
+    p_lasso = pipelines[list_keys[0]].predict(X)
+    p_rf    = pipelines[list_keys[1]].predict(X)
+    p_lgbm  = pipelines[list_keys[2]].predict(X)
+    p_xgb   = pipelines[list_keys[3]].predict(X)
+    p_cat   = pipelines[list_keys[4]].predict(X)
+    return (p_lasso + p_rf + p_lgbm + p_xgb + p_cat) / 5
